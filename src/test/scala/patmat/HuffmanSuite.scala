@@ -1,108 +1,43 @@
 package patmat
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import patmat.Huffman._
+import org.junit.Assert.assertEquals
+import org.junit._
 
-@RunWith(classOf[JUnitRunner])
-class HuffmanSuite extends FunSuite {
+class HuffmanSuite {
+
+  import Huffman._
+
   trait TestTrees {
     val t1 = Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5)
     val t2 = Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Leaf('d', 4), List('a', 'b', 'd'), 9)
-
-    val CD = Fork(
-      Leaf('C', 1),
-      Leaf('D', 1),
-      "CD".toList,
-      2
-    )
-    val BCD = Fork(
-      Leaf('B', 3),
-      CD,
-      "BCD".toList,
-      5
-    )
-    val EF = Fork(
-      Leaf('E', 1),
-      Leaf('F', 1),
-      "EF".toList,
-      2
-    )
-    val GH = Fork(
-      Leaf('G', 1),
-      Leaf('H', 1),
-      "GH".toList,
-      2
-    )
-    val EFGH = Fork(
-      EF,
-      GH,
-      "EFGH".toList,
-      4
-    )
-    val BCDEFGH = Fork(
-      BCD,
-      EFGH,
-      "BCDEFGH".toList,
-      9
-    )
-    val ABCDEFGH = Fork(
-      Leaf('A', 8),
-      BCDEFGH,
-      "ABCDEFGH".toList,
-      17
-    )
-    val treeExample = ABCDEFGH
   }
 
-  test("weight of a larger tree") {
+  @Test def `weight of a larger tree (10pts)` : Unit =
     new TestTrees {
-      assert(weight(t1) === 5)
+      assertEquals(5, weight(t1))
     }
-  }
 
-  test("chars of a larger tree") {
+  @Test def `chars of a larger tree (10pts)` : Unit =
     new TestTrees {
-      assert(chars(t2) === List('a', 'b', 'd'))
+      assertEquals(List('a', 'b', 'd'), chars(t2))
     }
-  }
 
-  test("string2chars(\"hello, world\")") {
-    assert(string2Chars("hello, world") === List('h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd'))
-  }
+  @Test def `string2chars hello world`: Unit =
+    assertEquals(List('h', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd'), string2Chars("hello, world"))
 
-  test("makeOrderedLeafList for some frequency table") {
-    assert(makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3))) === List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 3)))
-  }
+  @Test def `make ordered leaf list for some frequency table (15pts)` : Unit =
+    assertEquals(List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 3)),
+                 makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3))))
 
-  test("combine of some leaf list") {
+  @Test def `combine of some leaf list (15pts)` : Unit = {
     val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
-    assert(combine(leaflist) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
+    assertEquals(List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)), combine(leaflist))
   }
 
-  test("encode D with exampleTree") {
+  @Test def `decode and encode a very short text should be identity (10pts)` : Unit =
     new TestTrees {
-      assert(encode(treeExample)("D".toList) === List[Bit](1, 0, 1, 1))
+      assertEquals("ab".toList, decode(t1, encode(t1)("ab".toList)))
     }
-  }
 
-  test("decode 10001010  with exampleTree") {
-    new TestTrees {
-      assert(decode(treeExample, List[Bit](1, 0, 0, 0, 1, 0, 1, 0)) === "BAC".toList)
-    }
-  }
-
-  test("quickEncode D with exampleTree") {
-    new TestTrees {
-      assert(quickEncode(treeExample)("D".toList) === List[Bit](1, 0, 1, 1))
-    }
-  }
-
-  test("decode and encode a very short text should be identity") {
-    new TestTrees {
-      assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
-    }
-  }
-
+  @Rule def individualTestTimeout = new org.junit.rules.Timeout(10 * 1000)
 }
